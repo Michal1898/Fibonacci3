@@ -1,40 +1,51 @@
-import timeit
+from time import perf_counter
+from functools import lru_cache
+def fibon_iter(n):
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    first_number, second_number = 1, 0
+    for i in range(1,n):
+        out = first_number + second_number
+        first_number, second_number = out, first_number
+    return out
+def fibon_rec(n):
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    return fibon_rec(n-1) + fibon_rec(n-2)
 
-class CustomException(Exception):
-    def __init__(self,a=""):
-        message = a
-        super().__init__(message)
+@lru_cache(100)
+def fibon_rec_lru(n):
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    return fibon_rec_lru(n-1) + fibon_rec_lru(n-2)
 
-
-def fibo_rec(n):
-    if n==0 or n==1:
-        return n
-    else:
-        return fibo_rec(n-1)+fibo_rec(n-2)
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    n=int(input("Zadej n pro výpočet Fibonacciho: "))
-    if n<0:
-        raise CustomException("N musí být >=0!")
-    else:
-        start_time = timeit.timeit()
-        fibo_n=[]
-        for my_counter in range(n+1):
-            if my_counter<2:
-                fibo_n.append(my_counter)
-            else:
-                temp=fibo_n[my_counter-1]+fibo_n[my_counter-2]
-                fibo_n.append(temp)
-
-        end_time = timeit.timeit()
-
-        print("Doba výpočtu Fibonacciho iterací:",(end_time-start_time))
-
-        print("Fibonacci iterací: ",fibo_n[n])
-
-        start_time = timeit.timeit()
-        fibo_n2=int(fibo_rec(n))
-        end_time = timeit.timeit()
-        print("Doba výpočtu Fibonacciho rekurzí:",(end_time - start_time))
-        print("Fibonacci rekurzí: ",fibo_n2)
+N = 100
+start_time = perf_counter()
+result = fibon_iter(N)
+end_time = perf_counter()
+print('Compute factorial iteratively: {}'.format(result))
+print('Time to compute one run: {} s'.format(end_time-start_time))
+# start_time = perf_counter()
+# print('Compute factorial recursively: {}'.format(fibon_rec(N)))
+# print('Time to compute one run: {} s'.format(perf_counter()-start_time))
+start_time = perf_counter()
+print('Compute factorial recursively with lru_cache: {}'.format(fibon_rec_lru(N)))
+print('Time to compute one run: {} s'.format(perf_counter()-start_time))
+start_time = perf_counter()
+for i in range(100):
+    result = fibon_iter(N)
+print('Time to compute 100 runs of factorial iteratively: {} s'.format(perf_counter()-start_time))
+start_time = perf_counter()
+# for i in range(100):
+#     result = fibon_rec(N)
+# print('Time to compute 100 runs of factorial recursively: {} s'.format(perf_counter()-start_time))
+start_time = perf_counter()
+for i in range(100):
+    result = fibon_rec_lru(N)
+print('Time to compute 100 runs of factorial recursively with lru_cache: {} s'.format(perf_counter()-start_time))
